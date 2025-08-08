@@ -18,8 +18,16 @@ class LanguageController extends Controller
             ->orderBy('language')
             ->paginate(20);
 
+        // Get global statistics
+        $stats = [
+            'total' => Language::count(),
+            'active' => Language::where('is_active', true)->count(),
+            'inactive' => Language::where('is_active', false)->count(),
+        ];
+
         return Inertia::render('dashboard/languages/index', [
-            'languages' => $languages
+            'languages' => $languages,
+            'stats' => $stats
         ]);
     }
 

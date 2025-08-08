@@ -12,7 +12,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Plus, Edit, Trash2, Eye, Users, ToggleLeft, ToggleRight } from 'lucide-react';
+import { Plus, Edit, Trash2, Eye, Users, ToggleLeft, ToggleRight, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface Language {
     id: number;
@@ -30,6 +30,16 @@ interface LanguagesProps {
         current_page: number;
         last_page: number;
         total: number;
+        per_page: number;
+        from: number;
+        to: number;
+        prev_page_url: string | null;
+        next_page_url: string | null;
+    };
+    stats: {
+        total: number;
+        active: number;
+        inactive: number;
     };
 }
 
@@ -44,7 +54,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Languages({ languages }: LanguagesProps) {
+export default function Languages({ languages, stats }: LanguagesProps) {
     const handleDelete = (language: Language) => {
         if (language.users_count > 0) {
             alert('Cannot delete language that is assigned to users.');
@@ -58,6 +68,10 @@ export default function Languages({ languages }: LanguagesProps) {
 
     const handleToggle = (language: Language) => {
         router.patch(`/dashboard/languages/${language.id}/toggle`);
+    };
+
+    const goToPage = (page: number) => {
+        router.get('/dashboard/languages', { page }, { preserveState: true });
     };
 
     return (
@@ -75,10 +89,13 @@ export default function Languages({ languages }: LanguagesProps) {
                             </div>
                             <div className="flex items-center gap-2">
                                 <Badge variant="secondary" className="text-sm">
-                                    Total: {languages.total}
+                                    Total: {stats.total}
                                 </Badge>
-                                <Badge variant="outline" className="text-sm">
-                                    Active: {languages.data.filter(lang => lang.is_active).length}
+                                <Badge variant="outline" className="text-sm text-green-700 border-green-300">
+                                    Active: {stats.active}
+                                </Badge>
+                                <Badge variant="outline" className="text-sm text-gray-600 border-gray-300">
+                                    Inactive: {stats.inactive}
                                 </Badge>
                                 <Link href="/dashboard/languages/create">
                                     <Button>
@@ -193,7 +210,55 @@ export default function Languages({ languages }: LanguagesProps) {
                         {languages.last_page > 1 && (
                             <div className="flex items-center justify-between px-2 mt-4">
                                 <div className="text-sm text-muted-foreground">
-                                    Page {languages.current_page} of {languages.last_page}
+                                    Showing {languages.from} to {languages.to} of {languages.total} languages
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => goToPage(languages.current_page - 1)}
+                                        disabled={languages.current_page === 1}
+                                        className="h-8 w-8 p-0"
+                                    >
+                                        <ChevronLeft className="h-4 w-4" />
+                                    </Button>
+                                    
+                                    <div className="flex items-center space-x-1">
+                                        {Array.from({ length: Math.min(5, languages.last_page) }, (_, i) => {
+                                            let pageNumber;
+                                            if (languages.last_page <= 5) {
+                                                pageNumber = i + 1;
+                                            } else if (languages.current_page <= 3) {
+                                                pageNumber = i + 1;
+                                            } else if (languages.current_page >= languages.last_page - 2) {
+                                                pageNumber = languages.last_page - 4 + i;
+                                            } else {
+                                                pageNumber = languages.current_page - 2 + i;
+                                            }
+                                            
+                                            return (
+                                                <Button
+                                                    key={pageNumber}
+                                                    variant={pageNumber === languages.current_page ? "default" : "outline"}
+                                                    size="sm"
+                                                    onClick={() => goToPage(pageNumber)}
+                                                    className="h-8 w-8 p-0"
+                                                >
+                                                    {pageNumber}
+                                                </Button>
+                                            );
+                                        })}
+                                    </div>
+                                    
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => goToPage(languages.current_page + 1)}
+                                        disabled={languages.current_page === languages.last_page}
+                                        className="h-8 w-8 p-0"
+                                    >
+                                        <ChevronRight className="h-4 w-4" />
+                                    </Button>
                                 </div>
                             </div>
                         )}
