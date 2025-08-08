@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
+
     public function index(Request $request)
     {
         $query = User::with('role');

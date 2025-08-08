@@ -26,9 +26,31 @@ class StreakController extends Controller
             'user_id' => $user->id,
         ]);
 
-        return response()->json([], 201, [
+        $xp = 10;
+
+        $consecutiveStreaks = $user->consecutiveStreakCount();
+        if ($consecutiveStreaks % 7 === 0 && $consecutiveStreaks > 0) {
+            $xp = 50;
+        }
+
+        $user->addXP($xp);
+
+        $newAchievements = $user->checkAchievements();
+
+        return response()->json([
+            'xp' => $xp,
+            'streaks_count' => $user->consecutiveStreakCount(),
+            'new_achievements' => $newAchievements->map(fn($achievement) => [
+                'id' => $achievement->id,
+                'key' => $achievement->key,
+                'name' => $achievement->name,
+                'description' => $achievement->description,
+                'icon' => $achievement->icon,
+                'color' => $achievement->color,
+                'xp_reward' => $achievement->xp_reward,
+            ]),
             'success' => true,
             'message' => 'Streak created successfully',
-        ]);
+        ], 201);
     }
 }

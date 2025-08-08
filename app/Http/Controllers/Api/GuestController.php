@@ -21,6 +21,8 @@ class GuestController extends Controller
             'is_guest' => true,
             'guest_token' => $guestToken,
             'role_id' => $guestRole->id,
+            'xp' => 0,
+            'level' => 1,
         ]);
 
         $token = $user->createToken('guest_token')->plainTextToken;
