@@ -39,6 +39,7 @@ class LanguageController extends Controller
         $validated = $request->validate([
             'language' => 'required|string|max:255',
             'code' => 'required|string|max:10|unique:languages,code',
+            'emoji' => 'nullable|string|max:10',
             'is_active' => 'boolean',
         ]);
 
@@ -78,6 +79,7 @@ class LanguageController extends Controller
         $validated = $request->validate([
             'language' => 'required|string|max:255',
             'code' => 'required|string|max:10|unique:languages,code,' . $language->id,
+            'emoji' => 'nullable|string|max:10',
             'is_active' => 'boolean',
         ]);
 

@@ -18,6 +18,7 @@ interface Language {
     id: number;
     language: string;
     code: string;
+    emoji: string;
     is_active: boolean;
     users_count: number;
     created_at: string;
@@ -106,8 +107,11 @@ export default function Languages({ languages }: LanguagesProps) {
                                         <TableRow key={language.id}>
                                             <TableCell>
                                                 <div className="flex items-center gap-2">
-                                                    <div className="font-medium">
-                                                        {language.language}
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-xl">{language.emoji}</span>
+                                                        <div className="font-medium">
+                                                            {language.language}
+                                                        </div>
                                                     </div>
                                                     {language.code === 'en' && (
                                                         <Badge variant="outline" className="text-xs">

@@ -14,6 +14,7 @@ interface Language {
     id: number;
     language: string;
     code: string;
+    emoji: string;
     is_active: boolean;
 }
 
@@ -40,6 +41,7 @@ export default function EditLanguage({ language }: EditLanguageProps) {
     const { data, setData, put, processing, errors } = useForm({
         language: language.language,
         code: language.code,
+        emoji: language.emoji,
         is_active: language.is_active,
     });
 
@@ -98,6 +100,22 @@ export default function EditLanguage({ language }: EditLanguageProps) {
                                 </p>
                             </div>
 
+                            <div className="space-y-2">
+                                <Label htmlFor="emoji">Flag Emoji</Label>
+                                <Input
+                                    id="emoji"
+                                    value={data.emoji}
+                                    onChange={(e) => setData('emoji', e.target.value)}
+                                    placeholder="e.g., 🇺🇸, 🇪🇸, 🇫🇷, 🇩🇪"
+                                    maxLength={10}
+                                    className={errors.emoji ? 'border-red-500' : ''}
+                                />
+                                {errors.emoji && <p className="text-sm text-red-500">{errors.emoji}</p>}
+                                <p className="text-xs text-muted-foreground">
+                                    Optional flag emoji to represent the language
+                                </p>
+                            </div>
+
                             <div className="flex items-center space-x-2">
                                 <Checkbox
                                     id="is_active"
@@ -127,6 +145,9 @@ export default function EditLanguage({ language }: EditLanguageProps) {
                             <div className="border rounded-lg p-4 bg-muted/50">
                                 <Label className="text-sm font-medium">Preview:</Label>
                                 <div className="flex items-center gap-3 mt-2">
+                                    {data.emoji && (
+                                        <span className="text-xl">{data.emoji}</span>
+                                    )}
                                     <div className="font-medium">
                                         {data.language || 'Language Name'}
                                     </div>

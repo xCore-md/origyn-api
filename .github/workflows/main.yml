@@ -1,0 +1,92 @@
+name: Origyn deploy CI/CD
+on:
+  push:
+    branches:
+      - main
+jobs:
+  Testing:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install PHP_CodeSniffer
+        run: |
+          curl -OL https://squizlabs.github.io/PHP_CodeSniffer/phpcs.phar
+          chmod +x phpcs.phar
+          sudo mv phpcs.phar /usr/local/bin/phpcs
+          phpcs --version
+
+      - name: Run PHP CodeSniffer
+        run: phpcs --standard=PSR1 --warning-severity=0 --ignore=vendor/* **/*.php
+
+  Deploying:
+    needs: Testing
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH Connection
+        uses: fifsky/ssh-action@master
+        with:
+          command: |
+            set -e
+
+            APP_DIR="/home/origynapp-api/htdocs/api.origynapp.art"
+
+            echo "🔄 Deploying application to production..."
+
+            # Navighează în directorul aplicației
+            cd "$APP_DIR"
+
+            # Actualizează codul din branch-ul master
+            echo "🔄 Updating codebase..."
+            git fetch origin main
+            git reset --hard origin/main
+
+            # Șterge cache-ul vechi
+            echo "🔄 Clearing cache and old files..."
+            rm -rf bootstrap/cache/*
+            php artisan optimize:clear
+
+            # Rulează migrațiile bazei de date
+            echo "🔄 Migrating database..."
+            php artisan migrate --force
+
+            # Șterge fișierele vechi
+            echo "🔄 Cleaning up unused files..."
+            git clean -fd
+
+            php artisan optimize:clear
+            # Restart cozi
+            echo "🔄 Restarting queue..."
+            php artisan queue:restart
+
+            # Build assets
+            echo "🔄 Building assets..."
+            nvm use 20
+            npm install
+            npm run build
+
+            echo "✅✅✅ Application deployed successfully!"
+
+          host: '194.33.40.199'
+          user: 'origynapp-api'
+          pass: ${{ secrets.SSH_PASSWORD }}
+
+      - name: Escape commit message
+        id: escape_commit
+        run: |
+          COMMIT_MESSAGE="${{ github.event.commits[0].message }}"
+          ESCAPED_MESSAGE=$(printf "%q" "$COMMIT_MESSAGE")
+          echo "ESCAPED_MESSAGE=$ESCAPED_MESSAGE" >> $GITHUB_ENV
+
+      - name: Send telegram message on push
+        uses: appleboy/telegram-action@master
+        with:
+          format: html
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: |
+            ✅ <b>[PROD] Origyn API - deployed!</b>
+            🥷 <b>User:</b> ${{ github.actor }}
+            📂 <b>Commit:</b> <a href="https://github.com/${{ github.repository }}/commit/${{github.sha}}">${{ env.ESCAPED_MESSAGE }}</a>
+            📌 <b>Branch:</b> ${{ github.ref }}
