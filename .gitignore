@@ -50,8 +50,6 @@ api.json
 
 **/.claude/settings.local.json
 
-composer.lock
-
 # Local testing files
 app/Console/Commands/LocalTestCommand.php
 app/Console/Commands/MigrateBIJanuary2025.php
