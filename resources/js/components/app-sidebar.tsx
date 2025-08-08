@@ -4,7 +4,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid, Users } from 'lucide-react';
+import { BookOpen, Folder, LayoutGrid, Users, Trophy, Award, Target } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -17,6 +17,23 @@ const mainNavItems: NavItem[] = [
         title: 'Users',
         href: '/dashboard/users',
         icon: Users,
+    },
+    {
+        title: 'Gamification',
+        href: '/dashboard/gamification',
+        icon: Trophy,
+        items: [
+            {
+                title: 'Achievements',
+                href: '/dashboard/achievements',
+                icon: Award,
+            },
+            {
+                title: 'Levels',
+                href: '/dashboard/levels',
+                icon: Target,
+            },
+        ],
     },
 ];
 

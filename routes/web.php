@@ -21,6 +21,30 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
             'users' => $users
         ]);
     })->name('dashboard.users');
+    
+    // Achievements CRUD
+    Route::resource('dashboard/achievements', App\Http\Controllers\Dashboard\AchievementController::class)
+        ->names([
+            'index' => 'dashboard.achievements.index',
+            'create' => 'dashboard.achievements.create',
+            'store' => 'dashboard.achievements.store',
+            'show' => 'dashboard.achievements.show',
+            'edit' => 'dashboard.achievements.edit',
+            'update' => 'dashboard.achievements.update',
+            'destroy' => 'dashboard.achievements.destroy',
+        ]);
+    
+    // Levels CRUD
+    Route::resource('dashboard/levels', App\Http\Controllers\Dashboard\LevelController::class)
+        ->names([
+            'index' => 'dashboard.levels.index',
+            'create' => 'dashboard.levels.create',
+            'store' => 'dashboard.levels.store',
+            'show' => 'dashboard.levels.show',
+            'edit' => 'dashboard.levels.edit',
+            'update' => 'dashboard.levels.update',
+            'destroy' => 'dashboard.levels.destroy',
+        ]);
 });
 
 require __DIR__.'/settings.php';
