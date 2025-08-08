@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -89,5 +90,67 @@ class User extends Authenticatable
     public function isGuestRole(): bool
     {
         return $this->hasRole('guest');
+    }
+    
+    public function streaks(): HasMany
+    {
+        return $this->hasMany(Streak::class);
+    }
+    
+    public function streakToday(): bool
+    {
+        return $this->streaks()
+            ->whereDate('created_at', today())
+            ->exists();
+    }
+    
+    public function consecutiveStreakCount(): int
+    {
+        $streaks = $this->streaks()
+            ->selectRaw('DATE(created_at) as date')
+            ->groupBy('date')
+            ->orderBy('date', 'desc')
+            ->pluck('date')
+            ->toArray();
+        
+        if (empty($streaks)) {
+            return 0;
+        }
+        
+        $count = 0;
+        $currentDate = today()->format('Y-m-d');
+        
+        foreach ($streaks as $streakDate) {
+            if ($streakDate === $currentDate) {
+                $count++;
+                $currentDate = today()->subDays($count)->format('Y-m-d');
+            } else {
+                break;
+            }
+        }
+        
+        return $count;
+    }
+    
+    public function weeklyStreaks(): array
+    {
+        $streakDates = $this->streaks()
+            ->whereBetween('created_at', [today()->subDays(6), today()->endOfDay()])
+            ->selectRaw('DATE(created_at) as date')
+            ->groupBy('date')
+            ->pluck('date')
+            ->toArray();
+        
+        $weeklyStreaks = [];
+        
+        for ($i = 6; $i >= 0; $i--) {
+            $date = today()->subDays($i);
+            $dayName = strtolower($date->format('l'));
+            $dateString = $date->format('Y-m-d');
+            
+            $weeklyStreaks[$dayName] = in_array($dateString, $streakDates);
+        }
+        
+        return $weeklyStreaks;
     }
 }

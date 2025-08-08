@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\GuestController;
 use App\Http\Controllers\Api\PasswordResetController;
+use App\Http\Controllers\Api\StreakController;
 use Illuminate\Support\Facades\Route;
 
 // Guest routes (no authentication required)
@@ -11,6 +12,7 @@ Route::post('/guest/create', [GuestController::class, 'createGuest']);
 Route::post('/guest/auth', [GuestController::class, 'authenticateGuest']);
 
 // Authentication routes
+Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 // Password reset routes
@@ -26,10 +28,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // Guest to registered conversion
     Route::post('/convert-guest', [AuthController::class, 'convertGuestToRegistered']);
 
-    // Guest data management
-    Route::get('/guest/data', [GuestController::class, 'getGuestData']);
-    Route::put('/guest/data', [GuestController::class, 'updateGuestData']);
-    Route::delete('/guest', [GuestController::class, 'deleteGuest']);
+    // Streak routes
+    Route::post('/streak', [StreakController::class, 'store']);
 
     // Admin routes (admin role required)
     Route::middleware('role:admin')->prefix('admin')->group(function () {
