@@ -61,6 +61,18 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     // Language toggle route
     Route::patch('dashboard/languages/{language}/toggle', [App\Http\Controllers\Dashboard\LanguageController::class, 'toggle'])
         ->name('dashboard.languages.toggle');
+    
+    // Disciplines CRUD
+    Route::resource('dashboard/disciplines', App\Http\Controllers\DisciplinesController::class)
+        ->names([
+            'index' => 'dashboard.disciplines.index',
+            'create' => 'dashboard.disciplines.create',
+            'store' => 'dashboard.disciplines.store',
+            'show' => 'dashboard.disciplines.show',
+            'edit' => 'dashboard.disciplines.edit',
+            'update' => 'dashboard.disciplines.update',
+            'destroy' => 'dashboard.disciplines.destroy',
+        ]);
 });
 
 require __DIR__.'/settings.php';

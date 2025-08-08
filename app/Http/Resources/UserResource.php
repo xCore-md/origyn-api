@@ -28,8 +28,16 @@ class UserResource extends JsonResource
                 'id' => $this->language?->id,
                 'name' => $this->language?->language,
                 'code' => $this->language?->code,
+                'emoji' => $this->language?->emoji,
             ],
             'theme' => $this->theme,
+            'disciplines' => $this->whenLoaded('disciplines', function () {
+                return $this->disciplines->map(fn($discipline) => [
+                    'id' => $discipline->id,
+                    'name' => $discipline->name,
+                    'icon' => $discipline->icon,
+                ]);
+            }),
             'achievements' => [
                 'unlocked' => $this->achievements->map(fn($achievement) => [
                     'id' => $achievement->id,

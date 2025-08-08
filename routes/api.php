@@ -16,8 +16,19 @@ Route::get('/languages', function () {
     return response()->json([
         'success' => true,
         'languages' => \App\Models\Language::active()
-            ->select('id', 'language', 'code')
+            ->select('id', 'language', 'code', 'emoji')
             ->orderBy('language')
+            ->get(),
+    ]);
+});
+
+// Disciplines routes
+Route::get('/disciplines', function () {
+    return response()->json([
+        'success' => true,
+        'disciplines' => \App\Models\Discipline::where('is_active', true)
+            ->select('id', 'name', 'icon')
+            ->orderBy('name')
             ->get(),
     ]);
 });
@@ -41,6 +52,13 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Streak routes
     Route::post('/streak', [StreakController::class, 'store']);
+    
+    // User discipline management
+    Route::post('/user/disciplines/{discipline}', [AuthController::class, 'assignDiscipline']);
+    Route::delete('/user/disciplines/{discipline}', [AuthController::class, 'removeDiscipline']);
+    
+    // User settings
+    Route::patch('/user/settings', [AuthController::class, 'updateSettings']);
 
     // Admin routes (admin role required)
     Route::middleware('role:admin')->prefix('admin')->group(function () {

@@ -259,6 +259,11 @@ class User extends Authenticatable
             ->count();
     }
     
+    public function disciplines(): BelongsToMany
+    {
+        return $this->belongsToMany(Discipline::class);
+    }
+    
     public function checkAchievements(): array
     {
         $unlockedAchievements = [];

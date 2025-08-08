@@ -13,6 +13,7 @@ class Language extends Model
     protected $fillable = [
         'language',
         'code',
+        'emoji',
         'is_active',
     ];
 

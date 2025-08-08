@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
+use App\Models\Discipline;
 use App\Models\Language;
 use App\Models\Role;
 use App\Models\User;
@@ -105,7 +106,7 @@ class AuthController extends Controller
 
     public function user(Request $request)
     {
-        $user = $request->user()->load(['role', 'level', 'language', 'achievements']);
+        $user = $request->user()->load(['role', 'level', 'language', 'achievements', 'disciplines']);
         
         return response()->json([
             'success' => true,
@@ -153,6 +154,88 @@ class AuthController extends Controller
             'success' => true,
             'message' => 'Guest account converted to registered user successfully',
             'user' => new UserResource($user->load(['role', 'level', 'language'])),
+        ]);
+    }
+
+    public function assignDiscipline(Request $request, Discipline $discipline)
+    {
+        $user = $request->user();
+        
+        if ($user->disciplines()->where('discipline_id', $discipline->id)->exists()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Discipline already assigned to user',
+            ], 409);
+        }
+
+        $user->disciplines()->attach($discipline);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Discipline assigned successfully',
+            'discipline' => $discipline->only(['id', 'name', 'icon']),
+        ]);
+    }
+
+    public function removeDiscipline(Request $request, Discipline $discipline)
+    {
+        $user = $request->user();
+        
+        if (!$user->disciplines()->where('discipline_id', $discipline->id)->exists()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Discipline not assigned to user',
+            ], 404);
+        }
+
+        $user->disciplines()->detach($discipline);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Discipline removed successfully',
+        ]);
+    }
+
+    public function updateSettings(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'theme' => 'nullable|in:default,dark,light',
+            'language_id' => 'nullable|exists:languages,id',
+            'discipline_ids' => 'nullable|array',
+            'discipline_ids.*' => 'exists:disciplines,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $user = $request->user();
+        $updateData = [];
+
+        if ($request->has('theme')) {
+            $updateData['theme'] = $request->theme;
+        }
+
+        if ($request->has('language_id')) {
+            $updateData['language_id'] = $request->language_id;
+        }
+
+        if (!empty($updateData)) {
+            $user->update($updateData);
+        }
+
+        if ($request->has('discipline_ids')) {
+            $user->disciplines()->sync($request->discipline_ids);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Settings updated successfully',
+            'user' => new UserResource($user->load(['role', 'level', 'language', 'disciplines'])),
         ]);
     }
 }
