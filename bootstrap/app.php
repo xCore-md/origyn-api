@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\OptionalAuth;
@@ -26,6 +27,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->alias([
+            'admin' => AdminMiddleware::class,
             'role' => RoleMiddleware::class,
             'optional.auth' => OptionalAuth::class,
         ]);
