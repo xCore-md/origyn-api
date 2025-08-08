@@ -33,6 +33,8 @@ class User extends Authenticatable
         'role_id',
         'xp',
         'level_id',
+        'language_id',
+        'theme',
     ];
 
     /**
@@ -78,6 +80,11 @@ class User extends Authenticatable
     public function level(): BelongsTo
     {
         return $this->belongsTo(Level::class);
+    }
+
+    public function language(): BelongsTo
+    {
+        return $this->belongsTo(Language::class);
     }
     
     public function hasRole(string $roleName): bool

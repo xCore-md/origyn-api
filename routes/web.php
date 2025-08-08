@@ -45,6 +45,22 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
             'update' => 'dashboard.levels.update',
             'destroy' => 'dashboard.levels.destroy',
         ]);
+    
+    // Languages CRUD
+    Route::resource('dashboard/languages', App\Http\Controllers\Dashboard\LanguageController::class)
+        ->names([
+            'index' => 'dashboard.languages.index',
+            'create' => 'dashboard.languages.create',
+            'store' => 'dashboard.languages.store',
+            'show' => 'dashboard.languages.show',
+            'edit' => 'dashboard.languages.edit',
+            'update' => 'dashboard.languages.update',
+            'destroy' => 'dashboard.languages.destroy',
+        ]);
+    
+    // Language toggle route
+    Route::patch('dashboard/languages/{language}/toggle', [App\Http\Controllers\Dashboard\LanguageController::class, 'toggle'])
+        ->name('dashboard.languages.toggle');
 });
 
 require __DIR__.'/settings.php';

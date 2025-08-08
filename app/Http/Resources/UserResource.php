@@ -24,6 +24,12 @@ class UserResource extends JsonResource
             'streaks_count' => $this->consecutiveStreakCount(),
             'has_streak_today' => $this->streakToday(),
             'level' => $this->getLevelProgress(),
+            'language' => [
+                'id' => $this->language?->id,
+                'name' => $this->language?->language,
+                'code' => $this->language?->code,
+            ],
+            'theme' => $this->theme,
             'achievements' => [
                 'unlocked' => $this->achievements->map(fn($achievement) => [
                     'id' => $achievement->id,

@@ -11,6 +11,17 @@ use Illuminate\Support\Facades\Route;
 Route::post('/guest/create', [GuestController::class, 'createGuest']);
 Route::post('/guest/auth', [GuestController::class, 'authenticateGuest']);
 
+// Language routes
+Route::get('/languages', function () {
+    return response()->json([
+        'success' => true,
+        'languages' => \App\Models\Language::active()
+            ->select('id', 'language', 'code')
+            ->orderBy('language')
+            ->get(),
+    ]);
+});
+
 // Authentication routes
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);

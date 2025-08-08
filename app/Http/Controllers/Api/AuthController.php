@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
+use App\Models\Language;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -19,6 +20,8 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
+            'language_code' => 'nullable|string|exists:languages,code',
+            'theme' => 'nullable|in:default,dark,light',
         ]);
 
         if ($validator->fails()) {
@@ -31,12 +34,20 @@ class AuthController extends Controller
 
         $customerRole = Role::customer();
         
+        // Get default language or use provided one
+        $language = $request->language_code 
+            ? Language::findByCode($request->language_code)
+            : Language::getDefault();
+        
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'is_guest' => false,
             'role_id' => $customerRole->id,
+            'language_id' => $language?->id,
+            'theme' => $request->theme ?? 'default',
+            'xp' => 0,
         ]);
 
         $token = $user->createToken('auth_token')->plainTextToken;
@@ -44,7 +55,7 @@ class AuthController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'User registered successfully',
-            'user' => $user,
+            'user' => new UserResource($user->load(['role', 'level', 'language'])),
             'token' => $token,
         ], 201);
     }
@@ -77,7 +88,7 @@ class AuthController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Login successful',
-            'user' => $user,
+            'user' => new UserResource($user->load(['role', 'level', 'language'])),
             'token' => $token,
         ]);
     }
@@ -94,7 +105,7 @@ class AuthController extends Controller
 
     public function user(Request $request)
     {
-        $user = $request->user()->load('role', 'streaks');
+        $user = $request->user()->load(['role', 'level', 'language', 'achievements']);
         
         return response()->json([
             'success' => true,
@@ -141,7 +152,7 @@ class AuthController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Guest account converted to registered user successfully',
-            'user' => $user,
+            'user' => new UserResource($user->load(['role', 'level', 'language'])),
         ]);
     }
 }
