@@ -6,11 +6,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory;
+    use Notifiable;
+    use HasApiTokens;
 
     /**
      * The attributes that are mass assignable.
@@ -21,6 +24,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'is_guest',
+        'guest_token',
+        'progress_data',
     ];
 
     /**
@@ -43,6 +49,18 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_guest' => 'boolean',
+            'progress_data' => 'array',
         ];
+    }
+    
+    public function scopeGuests($query)
+    {
+        return $query->where('is_guest', true);
+    }
+    
+    public function scopeRegistered($query)
+    {
+        return $query->where('is_guest', false);
     }
 }
