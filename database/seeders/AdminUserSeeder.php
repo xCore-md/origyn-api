@@ -28,7 +28,7 @@ class AdminUserSeeder extends Seeder
                 'name' => 'Admin',
                 'email' => 'contact@xcore.md',
                 'password' => Hash::make($adminPassword),
-                'role_id' => Role::admin(),
+                'role_id' => 1,
                 'is_guest' => false,
                 'email_verified_at' => now(),
                 'xp' => 0,
