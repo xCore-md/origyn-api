@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -27,11 +28,14 @@ class AuthController extends Controller
             ], 422);
         }
 
+        $customerRole = Role::customer();
+        
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'is_guest' => false,
+            'role_id' => $customerRole->id,
         ]);
 
         $token = $user->createToken('auth_token')->plainTextToken;
@@ -120,12 +124,15 @@ class AuthController extends Controller
             ], 400);
         }
 
+        $customerRole = Role::customer();
+        
         $user->update([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'is_guest' => false,
             'guest_token' => null,
+            'role_id' => $customerRole->id,
         ]);
 
         return response()->json([

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -12,11 +13,13 @@ class GuestController extends Controller
     public function createGuest(Request $request)
     {
         $guestToken = Str::random(40);
+        $guestRole = Role::guest();
         
         $user = User::create([
             'name' => 'Guest User',
             'is_guest' => true,
             'guest_token' => $guestToken,
+            'role_id' => $guestRole->id,
         ]);
 
         $token = $user->createToken('guest_token')->plainTextToken;

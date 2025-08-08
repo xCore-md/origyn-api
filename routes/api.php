@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\GuestController;
 use App\Http\Controllers\Api\PasswordResetController;
@@ -30,4 +31,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/guest/data', [GuestController::class, 'getGuestData']);
     Route::put('/guest/data', [GuestController::class, 'updateGuestData']);
     Route::delete('/guest', [GuestController::class, 'deleteGuest']);
+    
+    // Admin routes (admin role required)
+    Route::middleware('role:admin')->prefix('admin')->group(function () {
+        Route::get('/users', [AdminUserController::class, 'index']);
+        Route::get('/users/{user}', [AdminUserController::class, 'show']);
+        Route::patch('/users/{user}/role', [AdminUserController::class, 'updateRole']);
+        Route::delete('/users/{user}', [AdminUserController::class, 'destroy']);
+        Route::get('/roles', [AdminUserController::class, 'roles']);
+    });
 });

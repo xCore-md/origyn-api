@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -27,6 +28,7 @@ class User extends Authenticatable
         'is_guest',
         'guest_token',
         'progress_data',
+        'role_id',
     ];
 
     /**
@@ -62,5 +64,30 @@ class User extends Authenticatable
     public function scopeRegistered($query)
     {
         return $query->where('is_guest', false);
+    }
+    
+    public function role(): BelongsTo
+    {
+        return $this->belongsTo(Role::class);
+    }
+    
+    public function hasRole(string $roleName): bool
+    {
+        return $this->role && $this->role->name === $roleName;
+    }
+    
+    public function isAdmin(): bool
+    {
+        return $this->hasRole('admin');
+    }
+    
+    public function isCustomer(): bool
+    {
+        return $this->hasRole('customer');
+    }
+    
+    public function isGuestRole(): bool
+    {
+        return $this->hasRole('guest');
     }
 }
