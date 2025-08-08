@@ -11,7 +11,6 @@ Route::post('/guest/create', [GuestController::class, 'createGuest']);
 Route::post('/guest/auth', [GuestController::class, 'authenticateGuest']);
 
 // Authentication routes
-Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 // Password reset routes
@@ -23,15 +22,15 @@ Route::middleware('auth:sanctum')->group(function () {
     // User info
     Route::get('/user', [AuthController::class, 'user']);
     Route::post('/logout', [AuthController::class, 'logout']);
-    
+
     // Guest to registered conversion
     Route::post('/convert-guest', [AuthController::class, 'convertGuestToRegistered']);
-    
+
     // Guest data management
     Route::get('/guest/data', [GuestController::class, 'getGuestData']);
     Route::put('/guest/data', [GuestController::class, 'updateGuestData']);
     Route::delete('/guest', [GuestController::class, 'deleteGuest']);
-    
+
     // Admin routes (admin role required)
     Route::middleware('role:admin')->prefix('admin')->group(function () {
         Route::get('/users', [AdminUserController::class, 'index']);
